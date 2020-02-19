@@ -13,16 +13,17 @@ import time
 building_blocks = [
 ["x", 0],
 ["y", 0],
-["#", 0], # gets speckled effect
+#["#", 0], # gets speckled effect
 ["prod", 2],
 ["avg", 2],
 ["cos_pi", 1],
 ["sin_pi", 1],
 ["min", 2],
-["max", 2]
+["max", 2],
+["sigmoid", 1]
 ]
 
-NUM_TERM = 3 # number index that not terminating functions start
+NUM_TERM = 2 # number index that not terminating functions start
 
 ####################
 # FUNCTION LIBRARY #
@@ -149,6 +150,8 @@ def evaluate_random_function(f, x, y):
         return min(evaluate_random_function(f[1], x, y), evaluate_random_function(f[2], x, y))
     elif arg == "max":
         return max(evaluate_random_function(f[1], x, y), evaluate_random_function(f[2], x, y))
+    elif arg == "sigmoid":
+        return 1 / (1 + math.exp(-1 * evaluate_random_function(f[1], x, y)))
     else:
         print("VAL ERR", f)
         return ValueError()
@@ -296,4 +299,4 @@ if __name__ == '__main__':
     # saves to images folder with suffix defined by parameters i, a, b, c, d, e, f
     for i in range(20):
         # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
-        generate_art("images/some-hash-min-max-a-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
+        generate_art("images/no-hash-sigmoid-a-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
