@@ -8,6 +8,8 @@ import random
 import math
 from PIL import Image
 
+import multiprocessing
+
 building_blocks = [
 ["x", 0],
 ["y", 0],
@@ -19,7 +21,15 @@ building_blocks = [
 ["max", 2]
 ]
 
+####################
+# FUNCTION LIBRARY #
+####################
 
+
+
+#########################
+# BUILD RANDOM FUNCTION #
+#########################
 
 def build_random_function(min_depth, max_depth):
     """Build a random function.
@@ -42,32 +52,26 @@ def build_random_function(min_depth, max_depth):
     # store list
     retlist = []
 
-    # first value
-    if 1 < min_depth:
+    if max_depth == 1:
+        # terminate immidiately
+        retlist.append('#')
+        return retlist
+    elif min_depth > 1:
         # do not terminate immidiately
+        # don't pick function with zero parameters
         exp_ind = random.randint(2, len(building_blocks)-1)
     else:
+        # possibility of picking non- and terminating options
         exp_ind = random.randint(0, len(building_blocks)-1)
 
     exp = building_blocks[exp_ind][0]
     retlist.append(exp)
+    # find next number of arguments
     exp_num = building_blocks[exp_ind][1]
 
-    # rest of values
     for i in range(exp_num):
-        # if you reach the max depth, terminate (with a zero argument expression)
-        if 1 == max_depth:
-            retlist.append(['#'])
-        # if you haven't reached the min depth, don't terminate
-        elif 1 < min_depth:
-            arg = build_random_function(min_depth - 1, max_depth - 1)
-            while len(arg) <= 1:
-                arg = build_random_function(min_depth - 1, max_depth - 1)
-            retlist.append(arg)
-        # else just keep going as normal
-        else:
-            arg = build_random_function(min_depth -1, max_depth -1)
-            retlist.append(arg)
+        arg = build_random_function(min_depth - 1, max_depth - 1)
+        retlist.append(arg)
 
     return retlist
 
@@ -182,7 +186,9 @@ def remap_interval(val,
     """
 
     # CHANGED: finished and passed all tests
-    return (((val - input_interval_start) / (input_interval_end - input_interval_start)) * (output_interval_end - output_interval_start)) + output_interval_start
+    return (((val - input_interval_start) /
+    (input_interval_end - input_interval_start)) *
+    (output_interval_end - output_interval_start)) + output_interval_start
 
 
 
@@ -231,6 +237,7 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
     x = list(map(remap_interval, range(x_size)))
     y = list(map(remap_interval, range(y_size)))
 
+    # TODO: array + multiprocess
     for i in range(x_size):
         for j in range(y_size):
             pixels[i, j] = (
@@ -240,7 +247,6 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
             )
 
     # saving image and function
-
     # TODO: timeit
     suffix = "-".join([str(a), str(b), str(c), str(d), str(e), str(f)])
     filename_new = filename + "-" + suffix
@@ -248,8 +254,11 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
 
     f = open(filename_new + '.txt', 'w')
     f.write("RED FUNCTION: " + str(red_function))
+    print("RED FUNCTION: " + str(red_function))
     f.write("GREEN FUNCTION: " + str(green_function))
+    print("GREEN FUNCTION: " + str(green_function))
     f.write("BLUE FUNCTION: " + str(blue_function))
+    print("BLUE FUNCTION: " + str(blue_function))
     f.close()
 
     print(filename_new)
@@ -263,4 +272,5 @@ if __name__ == '__main__':
     # change range to produce and save more images at once
     # saves to images folder with suffix defined by parameters i, a, b, c, d, e, f
     for i in range(1):
-        generate_art("images/gatic-" + str(i), a=1, b=3, c=1, d=3, e=1, f=4)
+        # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
+        generate_art("images/gatic-" + str(i), a=1, b=2, c=1, d=2, e=1, f=2)
