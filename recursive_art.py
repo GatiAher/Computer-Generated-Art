@@ -13,6 +13,7 @@ import time
 building_blocks = [
 ["x", 0],
 ["y", 0],
+["#", 0], # gets speckled effect
 ["prod", 2],
 ["avg", 2],
 ["cos_pi", 1],
@@ -20,6 +21,8 @@ building_blocks = [
 ["min", 2],
 ["max", 2]
 ]
+
+NUM_TERM = 3 # number index that not terminating functions start
 
 ####################
 # FUNCTION LIBRARY #
@@ -61,7 +64,7 @@ def build_random_function(min_depth, max_depth):
     elif min_depth > 1:
         # do not terminate immidiately
         # don't pick function with zero parameters
-        exp_ind = random.randint(2, len(building_blocks)-1)
+        exp_ind = random.randint(NUM_TERM, len(building_blocks)-1)
     else:
         # possibility of picking non- and terminating options
         exp_ind = random.randint(0, len(building_blocks)-1)
@@ -132,9 +135,8 @@ def evaluate_random_function(f, x, y):
         return x
     elif arg == "y":
         return y
-    # elif arg == "#":
-    #     # TODO: play around with this value
-    #     return random.choice([x, y])
+    elif arg == "#":
+        return random.choice([x, y])
     elif arg == "prod":
         return evaluate_random_function(f[1], x, y) * evaluate_random_function(f[2], x, y)
     elif arg == "avg":
@@ -294,4 +296,4 @@ if __name__ == '__main__':
     # saves to images folder with suffix defined by parameters i, a, b, c, d, e, f
     for i in range(20):
         # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
-        generate_art("images/no-hash-min-max-a-" + str(i), a=7, b=20, c=7, d=20, e=7, f=20)
+        generate_art("images/some-hash-min-max-a-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
