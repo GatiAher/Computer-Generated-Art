@@ -8,7 +8,7 @@ import random
 import math
 from PIL import Image
 
-import multiprocessing
+import time
 
 building_blocks = [
 ["x", 0],
@@ -54,7 +54,9 @@ def build_random_function(min_depth, max_depth):
 
     if max_depth == 1:
         # terminate immidiately
-        retlist.append('#')
+        # CHANGED: playing around with this, random.choice([x, y])
+        # retlist.append('#')
+        retlist.append(random.choice(['x', 'y']))
         return retlist
     elif min_depth > 1:
         # do not terminate immidiately
@@ -130,8 +132,9 @@ def evaluate_random_function(f, x, y):
         return x
     elif arg == "y":
         return y
-    elif arg == "#":
-        return random.choice([x, y])
+    # elif arg == "#":
+    #     # TODO: play around with this value
+    #     return random.choice([x, y])
     elif arg == "prod":
         return evaluate_random_function(f[1], x, y) * evaluate_random_function(f[2], x, y)
     elif arg == "avg":
@@ -193,7 +196,8 @@ def remap_interval(val,
 
 
 def color_map(val):
-    """Maps input value between -1 and 1 to an integer 0-255, suitable for use as an RGB color code.
+    """Maps input value between -1 and 1 to an integer 0-255,
+    suitable for use as an RGB color code.
 
     Args:
         val: value to remap, must be a float in the interval [-1, 1]
@@ -211,7 +215,7 @@ def color_map(val):
         >>> color_map(0.5)
         191
     """
-    # NOTE: This relies on remap_interval, which you must provide
+    # NOTE: This relies on remap_interval
     color_code = remap_interval(val, -1, 1, 0, 255)
     return int(color_code)
 
@@ -225,19 +229,25 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
         x_size, y_size: optional args to set image dimensions (default: 350)
     """
     # Functions for red, green, and blue channels - where the magic happens!
+    t0 = time.time()
     red_function = build_random_function(a, b)
     green_function = build_random_function(c, d)
     blue_function = build_random_function(e, f)
+    t1 = time.time()
+    print("*** TIME TO BUILD *** ", str(t1 - t0))
 
     # Create image and loop over all pixels
     im = Image.new("RGB", (x_size, y_size))
     pixels = im.load()
 
-    # TODO: timeit
+    t0 = time.time()
     x = list(map(remap_interval, range(x_size)))
     y = list(map(remap_interval, range(y_size)))
+    t1 = time.time()
+    print("*** TIME TO MAP *** ", str(t1 - t0))
 
     # TODO: array + multiprocess
+    t0 = time.time()
     for i in range(x_size):
         for j in range(y_size):
             pixels[i, j] = (
@@ -245,21 +255,32 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
                 color_map(evaluate_random_function(green_function, x[i], y[j])),
                 color_map(evaluate_random_function(blue_function, x[i], y[j]))
             )
+    t1 = time.time()
+    print("*** TIME TO EVALUATE *** ", str(t1 - t0))
 
     # saving image and function
-    # TODO: timeit
-    suffix = "-".join([str(a), str(b), str(c), str(d), str(e), str(f)])
+    t0 = time.time()
+    suffix = "_".join([str(a), str(b), str(c), str(d), str(e), str(f)])
     filename_new = filename + "-" + suffix
     im.save(filename_new + ".png")
 
     f = open(filename_new + '.txt', 'w')
-    f.write("RED FUNCTION: " + str(red_function))
+
+    f.write("\n" + "FILE NAME: " + filename_new)
+
+    f.write("\n" + "RED FUNCTION: " + str(red_function))
     print("RED FUNCTION: " + str(red_function))
-    f.write("GREEN FUNCTION: " + str(green_function))
+
+    f.write("\n" + "GREEN FUNCTION: " + str(green_function))
     print("GREEN FUNCTION: " + str(green_function))
-    f.write("BLUE FUNCTION: " + str(blue_function))
+
+    f.write("\n" + "BLUE FUNCTION: " + str(blue_function))
     print("BLUE FUNCTION: " + str(blue_function))
+
     f.close()
+    t1 = time.time()
+    print("*** TIME TO SAVE *** ", str(t1 - t0))
+
 
     print(filename_new)
 
@@ -271,6 +292,6 @@ if __name__ == '__main__':
 
     # change range to produce and save more images at once
     # saves to images folder with suffix defined by parameters i, a, b, c, d, e, f
-    for i in range(1):
+    for i in range(20):
         # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
-        generate_art("images/gatic-" + str(i), a=1, b=2, c=1, d=2, e=1, f=2)
+        generate_art("images/no-hash-min-max-a-" + str(i), a=7, b=20, c=7, d=20, e=7, f=20)
