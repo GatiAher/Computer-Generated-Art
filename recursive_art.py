@@ -254,6 +254,8 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
     # TODO: array + multiprocess
     t0 = time.time()
     for i in range(x_size):
+        ta = time.time()
+        print(str(i) + " TIME CHECK: " + str(ta - t0))
         for j in range(y_size):
             pixels[i, j] = (
                 color_map(evaluate_random_function(red_function, x[i], y[j])),
@@ -299,4 +301,4 @@ if __name__ == '__main__':
     # saves to images folder with suffix defined by parameters i, a, b, c, d, e, f
     for i in range(20):
         # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
-        generate_art("images/no-hash-sigmoid-a-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
+        generate_art("images/no-hash-sigmoid-c-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
