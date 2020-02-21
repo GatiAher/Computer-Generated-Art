@@ -251,45 +251,65 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
     t1 = time.time()
     print("*** TIME TO MAP *** ", str(t1 - t0))
 
+    t0 = time.time()
+    # create an iterable of all the functions to run simultaneously
+    red_eval = []
+    green_eval = []
+    blue_eval = []
+    for i in x:
+        for j in y:
+            red_eval.append((red_function, i, j))
+            green_eval.append((green_function, i, j))
+            blue_eval.append((blue_function, i, j))
+    t1 = time.time()
+    print("*** TIME TO CREATE ITERABLE *** ", str(t1 - t0))
+
+
     # TODO: array + multiprocess
     t0 = time.time()
-    for i in range(x_size):
-        ta = time.time()
-        print(str(i) + " TIME CHECK: " + str(ta - t0))
-        for j in range(y_size):
-            pixels[i, j] = (
-                color_map(evaluate_random_function(red_function, x[i], y[j])),
-                color_map(evaluate_random_function(green_function, x[i], y[j])),
-                color_map(evaluate_random_function(blue_function, x[i], y[j]))
-            )
+    # for i in range(x_size):
+    #     ta = time.time()
+    #     print(str(i) + " TIME CHECK: " + str(ta - t0))
+    #     for j in range(y_size):
+    #         pixels[i, j] = (
+    #             color_map(evaluate_random_function(red_function, x[i], y[j])),
+    #             color_map(evaluate_random_function(green_function, x[i], y[j])),
+    #             color_map(evaluate_random_function(blue_function, x[i], y[j]))
+    #         )
+
+    # adding multiprocessing to evaluate all 3 colors simultaneously
+
+    print("RED EVAL: ", red_eval)
+
     t1 = time.time()
     print("*** TIME TO EVALUATE *** ", str(t1 - t0))
 
     # saving image and function
-    t0 = time.time()
-    suffix = "_".join([str(a), str(b), str(c), str(d), str(e), str(f)])
-    filename_new = filename + "-" + suffix
-    im.save(filename_new + ".png")
+    # t0 = time.time()
+    # suffix = "_".join([str(a), str(b), str(c), str(d), str(e), str(f)])
+    # filename_new = filename + "-" + suffix
+    # im.save(filename_new + ".png")
+    #
+    # f = open(filename_new + '.txt', 'w')
+    #
+    # f.write("\n" + "FILE NAME: " + filename_new)
+    #
+    # f.write("\n" + "RED FUNCTION: " + str(red_function))
+    # print("RED FUNCTION: " + str(red_function))
+    #
+    # f.write("\n" + "GREEN FUNCTION: " + str(green_function))
+    # print("GREEN FUNCTION: " + str(green_function))
+    #
+    # f.write("\n" + "BLUE FUNCTION: " + str(blue_function))
+    # print("BLUE FUNCTION: " + str(blue_function))
+    #
+    # f.close()
+    # t1 = time.time()
+    # print("*** TIME TO SAVE *** ", str(t1 - t0))
 
-    f = open(filename_new + '.txt', 'w')
-
-    f.write("\n" + "FILE NAME: " + filename_new)
-
-    f.write("\n" + "RED FUNCTION: " + str(red_function))
-    print("RED FUNCTION: " + str(red_function))
-
-    f.write("\n" + "GREEN FUNCTION: " + str(green_function))
-    print("GREEN FUNCTION: " + str(green_function))
-
-    f.write("\n" + "BLUE FUNCTION: " + str(blue_function))
-    print("BLUE FUNCTION: " + str(blue_function))
-
-    f.close()
-    t1 = time.time()
-    print("*** TIME TO SAVE *** ", str(t1 - t0))
 
 
-    print(filename_new)
+    # print(filename_new)
 
 
 if __name__ == '__main__':
@@ -299,6 +319,5 @@ if __name__ == '__main__':
 
     # change range to produce and save more images at once
     # saves to images folder with suffix defined by parameters i, a, b, c, d, e, f
-    for i in range(20):
-        # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
-        generate_art("images/no-hash-sigmoid-c-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
+    for i in range(1):
+        generate_art("images/no-hash-sigmoid-c-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
