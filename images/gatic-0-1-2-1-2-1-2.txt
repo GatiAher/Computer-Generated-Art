@@ -1,1 +1,0 @@
-RED FUNCTION: ['x']GREEN FUNCTION: ['prod', ['max', ['#'], ['#']], ['cos_pi', ['#']]]BLUE FUNCTION: ['cos_pi', ['x']]

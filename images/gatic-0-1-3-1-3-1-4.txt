@@ -1,1 +1,0 @@
-RED FUNCTION: ['min', ['avg', ['y'], ['cos_pi', ['#']]], ['cos_pi', ['prod', ['#'], ['#']]]]GREEN FUNCTION: ['cos_pi', ['max', ['x'], ['y']]]BLUE FUNCTION: ['max', ['prod', ['min', ['max', ['#'], ['#']], ['max', ['#'], ['#']]], ['y']], ['avg', ['prod', ['avg', ['#'], ['#']], ['cos_pi', ['#']]], ['min', ['avg', ['#'], ['#']], ['cos_pi', ['#']]]]]
