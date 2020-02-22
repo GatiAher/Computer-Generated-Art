@@ -13,7 +13,8 @@ import time
 building_blocks = [
 ["x", 0],
 ["y", 0],
-#["#", 0], # gets speckled effect
+["t", 0],
+# ["#", 0], # gets speckled effect
 ["prod", 2],
 ["avg", 2],
 ["cos_pi", 1],
@@ -23,7 +24,7 @@ building_blocks = [
 ["sigmoid", 1]
 ]
 
-NUM_TERM = 2 # number index that not terminating functions start
+NUM_TERM = 3 # number index that not terminating functions start
 
 ####################
 # FUNCTION LIBRARY #
@@ -60,7 +61,7 @@ def build_random_function(min_depth, max_depth):
         # terminate immidiately
         # CHANGED: playing around with this, random.choice([x, y])
         # retlist.append('#')
-        retlist.append(random.choice(['x', 'y']))
+        retlist.append(random.choice(['x', 'y', 't']))
         return retlist
     elif min_depth > 1:
         # do not terminate immidiately
@@ -83,7 +84,7 @@ def build_random_function(min_depth, max_depth):
 
 
 
-def evaluate_random_function(f, x, y):
+def evaluate_random_function(f, x, y, t):
     """Evaluate the random function f with inputs x,y.
 
     The representation of the function f is defined in the assignment write-up.
@@ -136,22 +137,24 @@ def evaluate_random_function(f, x, y):
         return x
     elif arg == "y":
         return y
+    elif arg =="t":
+        return t
     elif arg == "#":
         return random.choice([x, y])
     elif arg == "prod":
-        return evaluate_random_function(f[1], x, y) * evaluate_random_function(f[2], x, y)
+        return evaluate_random_function(f[1], x, y, t) * evaluate_random_function(f[2], x, y, t)
     elif arg == "avg":
-        return (evaluate_random_function(f[1], x, y) + evaluate_random_function(f[2], x, y))*0.5
+        return (evaluate_random_function(f[1], x, y, t) + evaluate_random_function(f[2], x, y, t))*0.5
     elif arg == "cos_pi":
-        return math.cos(math.pi * evaluate_random_function(f[1], x, y))
+        return math.cos(math.pi * evaluate_random_function(f[1], x, y, t))
     elif arg == "sin_pi":
-        return math.sin(math.pi * evaluate_random_function(f[1], x, y))
+        return math.sin(math.pi * evaluate_random_function(f[1], x, y, t))
     elif arg == "min":
-        return min(evaluate_random_function(f[1], x, y), evaluate_random_function(f[2], x, y))
+        return min(evaluate_random_function(f[1], x, y, t), evaluate_random_function(f[2], x, y, t))
     elif arg == "max":
-        return max(evaluate_random_function(f[1], x, y), evaluate_random_function(f[2], x, y))
+        return max(evaluate_random_function(f[1], x, y, t), evaluate_random_function(f[2], x, y, t))
     elif arg == "sigmoid":
-        return 1 / (1 + math.exp(-1 * evaluate_random_function(f[1], x, y)))
+        return 1 / (1 + math.exp(-1 * evaluate_random_function(f[1], x, y, t)))
     else:
         print("VAL ERR", f)
         return ValueError()
@@ -291,6 +294,73 @@ def generate_art(filename, x_size=350, y_size=350, a=7, b=9, c=7, d=9, e=7, f=9)
 
     print(filename_new)
 
+def modified_generate_art(filename, red_function, green_function, blue_function, x_size, y_size, t):
+    """Generate computational art and save as an image file.
+
+    Args:
+        filename: string filename for image (should be .png)
+        x_size, y_size: optional args to set image dimensions (default: 350)
+    """
+    # Functions for red, green, and blue channels - where the magic happens!
+    t0 = time.time()
+
+    # Create image and loop over all pixels
+    im = Image.new("RGB", (x_size, y_size))
+    pixels = im.load()
+    for i in range(x_size):
+        print("III ", i)
+        for j in range(y_size):
+            x = remap_interval(i, 0, x_size, -1, 1)
+            y = remap_interval(j, 0, y_size, -1, 1)
+            pixels[i, j] = (
+                color_map(evaluate_random_function(red_function, x, y, t)),
+                color_map(evaluate_random_function(green_function, x, y, t)),
+                color_map(evaluate_random_function(blue_function, x, y, t))
+            )
+
+    # saving image and function
+    im.save(filename + ".png")
+
+    f = open(filename + '.txt', 'w')
+
+    f.write("\n" + "FILE NAME: " + filename)
+
+    f.write("\n" + "RED FUNCTION: " + str(red_function))
+    print("RED FUNCTION: " + str(red_function))
+
+    f.write("\n" + "GREEN FUNCTION: " + str(green_function))
+    print("GREEN FUNCTION: " + str(green_function))
+
+    f.write("\n" + "BLUE FUNCTION: " + str(blue_function))
+    print("BLUE FUNCTION: " + str(blue_function))
+
+    f.close()
+    t1 = time.time()
+    print("*** TIME TO SAVE *** ", str(t1 - t0))
+
+
+    print(filename)
+
+def function_generator(min, max):
+    red_function = build_random_function(min, max)
+    green_function = build_random_function(min, max)
+    blue_function = build_random_function(min, max)
+    return [red_function, green_function, blue_function]
+
+
+def generate_movie(basefilename, number_of_frames, x_size=350, y_size=350):
+    functions = function_generator(7, 9)
+    red_function = functions[0]
+    green_function = functions[1]
+    blue_function = functions[2]
+
+    for i in (range(number_of_frames)):
+        frame_name = str(i)
+        filename = basefilename + frame_name
+        print("FILE NAME START", filename)
+        t = remap_interval(i, 0, number_of_frames-1, -1, 1)
+        modified_generate_art(filename, red_function, green_function, blue_function, x_size, y_size, t)
+
 
 if __name__ == '__main__':
     # import doctest
@@ -299,6 +369,7 @@ if __name__ == '__main__':
 
     # change range to produce and save more images at once
     # saves to images folder with suffix defined by parameters i, a, b, c, d, e, f
-    for i in range(20):
-        # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
-        generate_art("images/no-hash-sigmoid-c-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
+    # for i in range(20):
+    #     # generate_art("images/gatic-" + str(i), a=2, b=4, c=2, d=4, e=2, f=4)
+    #     generate_art("test-" + str(i), a=7, b=9, c=7, d=9, e=7, f=9)
+    generate_movie("tframe", 10)
